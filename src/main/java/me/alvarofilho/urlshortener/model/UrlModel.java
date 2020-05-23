@@ -5,7 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -24,6 +24,5 @@ public class UrlModel {
 
     private int clicks = 0;
 
-    @Temporal(TemporalType.DATE)
-    private Date date;
+    private LocalDate date;
 }
