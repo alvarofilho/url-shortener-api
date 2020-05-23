@@ -1,24 +1,29 @@
 package me.alvarofilho.urlshortener.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.math.BigInteger;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
-@Table(name = "URL")
 @Getter
+@Setter
+@Table(name = "Url")
 public class UrlModel {
-
-    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private String urlOriginal;
+    @NotNull(message = "Url Original may not be null")
+    private String url;
 
-    private String urlRandom;
+    private String shortUrl;
 
-    private BigInteger click;
+    private int clicks = 0;
+
+    @Temporal(TemporalType.DATE)
+    private Date date;
 }

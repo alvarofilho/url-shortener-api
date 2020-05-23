@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UrlRepository extends JpaRepository<UrlModel, Long> {
 
-    UrlModel findByUrlRandom(String urlRandom);
+    UrlModel findByShortUrl(String shortUrl);
 
 }
