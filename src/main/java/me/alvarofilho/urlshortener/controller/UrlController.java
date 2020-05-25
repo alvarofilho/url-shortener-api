@@ -3,6 +3,7 @@ package me.alvarofilho.urlshortener.controller;
 import lombok.SneakyThrows;
 import me.alvarofilho.urlshortener.model.UrlModel;
 import me.alvarofilho.urlshortener.repository.UrlRepository;
+import me.alvarofilho.urlshortener.utils.UrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,13 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.Random;
 
 @RestController
-public class UrlResource {
+public class UrlController {
 
     @Autowired
     private UrlRepository urlRepository;
+
+    @Autowired
+    private UrlUtils urlUtils;
 
     @SneakyThrows
     @GetMapping("/{hash}")
@@ -41,24 +44,21 @@ public class UrlResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(urlModel);
     }
 
+    @SneakyThrows
     @PostMapping("/")
     public ResponseEntity<?> createUrl(@RequestBody @Valid UrlModel urlModel) {
-        var existing = urlRepository.findByShortUrl(urlModel.getShortUrl());
-        if (existing != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{ \"menssagem\": \"There already exists a short url\"}");
+        if (urlUtils.pingURL(urlModel.getUrl())) {
+            if (urlModel.getShortUrl() == null) {
+                urlModel.setShortUrl(urlUtils.createRandomUrl());
+            }
+            var existing = urlRepository.findByShortUrl(urlModel.getShortUrl());
+            if (existing != null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{ \"menssagem\": \"There already exists a short url\"}");
+            }
+            urlModel.setDate(LocalDate.now());
+            return ResponseEntity.status(HttpStatus.CREATED).body(urlRepository.save(urlModel));
         }
-        if (urlModel.getShortUrl() == null) {
-            urlModel.setShortUrl(createRandomUrl());
-        }
-        urlModel.setDate(LocalDate.now());
-        return ResponseEntity.status(HttpStatus.CREATED).body(urlRepository.save(urlModel));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{ \"menssagem\": \"This URL is invalid\"}");
     }
 
-    private String createRandomUrl() {
-        return new Random().ints(48, 123)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(10)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
-    }
 }
