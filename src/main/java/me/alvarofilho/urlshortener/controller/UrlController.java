@@ -1,6 +1,7 @@
 package me.alvarofilho.urlshortener.controller;
 
-import lombok.SneakyThrows;
+import me.alvarofilho.urlshortener.erro.BadRequestException;
+import me.alvarofilho.urlshortener.erro.ResourceNotFoundException;
 import me.alvarofilho.urlshortener.model.UrlModel;
 import me.alvarofilho.urlshortener.repository.UrlRepository;
 import me.alvarofilho.urlshortener.utils.UrlUtils;
@@ -22,26 +23,24 @@ public class UrlController {
     @Autowired
     private UrlUtils urlUtils;
 
-    @SneakyThrows
     @GetMapping("/{hash}")
     public ResponseEntity<?> getUrlRedirect(@PathVariable(value = "hash") String hash) {
         var urlModel = urlRepository.findByShortUrl(hash);
-        if (urlModel != null) {
-            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(urlModel.getUrl())).build();
+        if (urlModel == null) {
+            throw new ResourceNotFoundException("There is no such short url");
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{ \"menssagem\": \"There is no such short url\"}");
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(urlModel.getUrl())).build();
     }
 
     @GetMapping("/url/{hash}")
     public ResponseEntity<?> getUrl(@PathVariable(value = "hash") String hash) {
         var urlModel = urlRepository.findByShortUrl(hash);
         if (urlModel == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{ \"menssagem\": \"There is no such short url\"}");
+            throw new ResourceNotFoundException("There is no such short url");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(urlModel);
     }
 
-    @SneakyThrows
     @PostMapping("/")
     public ResponseEntity<?> createUrl(@RequestBody @Valid UrlModel urlModel) {
         if (urlUtils.pingURL(urlModel.getUrl())) {
@@ -50,12 +49,12 @@ public class UrlController {
             }
             var existing = urlRepository.findByShortUrl(urlModel.getShortUrl());
             if (existing != null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{ \"menssagem\": \"There already exists a short url\"}");
+                throw new BadRequestException("There already exists a short url");
             }
             urlModel.setDate(LocalDate.now());
             return ResponseEntity.status(HttpStatus.CREATED).body(urlRepository.save(urlModel));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{ \"menssagem\": \"This URL is invalid\"}");
+        throw new BadRequestException("This URL is invalid");
     }
 
 }
