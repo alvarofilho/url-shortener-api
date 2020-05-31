@@ -1,4 +1,4 @@
-package me.alvarofilho.urlshortener.erro;
+package me.alvarofilho.urlshortener.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

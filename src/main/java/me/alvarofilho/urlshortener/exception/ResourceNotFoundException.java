@@ -1,4 +1,4 @@
-package me.alvarofilho.urlshortener.erro;
+package me.alvarofilho.urlshortener.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
 

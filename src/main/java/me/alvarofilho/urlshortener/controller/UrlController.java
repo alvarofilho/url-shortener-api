@@ -1,7 +1,7 @@
 package me.alvarofilho.urlshortener.controller;
 
-import me.alvarofilho.urlshortener.erro.BadRequestException;
-import me.alvarofilho.urlshortener.erro.ResourceNotFoundException;
+import me.alvarofilho.urlshortener.exception.BadRequestException;
+import me.alvarofilho.urlshortener.exception.ResourceNotFoundException;
 import me.alvarofilho.urlshortener.model.UrlModel;
 import me.alvarofilho.urlshortener.repository.UrlRepository;
 import me.alvarofilho.urlshortener.utils.UrlUtils;
